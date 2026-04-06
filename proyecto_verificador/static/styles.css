@@ -1,0 +1,20 @@
+.animate-fade-in {
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Color naranja para la pestaña activa */
+.tab-active {
+    background-color: #ea580c !important; /* orange-600 */
+    color: #000000 !important;
+}
+
+/* Personalizar scrollbar para que sea oscuro */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #09090b; }
+::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #ea580c; }
