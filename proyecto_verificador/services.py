@@ -89,8 +89,10 @@ def analizar_imagen_falsa(imagen_bytes):
 
 def verificar_link(url):
     try:
-        # Extraer contenido de la URL
-        contexto_web = tavily_client.get_search_context(query=url, search_depth="basic")
+        # Extraer contenido de la URL usando search() (compatible con tavily==1.1.0)
+        busqueda = tavily_client.search(query=url, search_depth="basic", max_results=3)
+        contextos = [r.get('content', '')[:500] for r in busqueda.get('results', []) if r.get('content')]
+        contexto_web = " ".join(contextos) if contextos else "No se encontró contenido relevante."
         
         # Prompt sincronizado con la tabla 'verificacion_link'
         prompt = f"""
