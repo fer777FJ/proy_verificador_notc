@@ -1,14 +1,16 @@
 create database db_verifica_bolivia;
 use db_verifica_bolivia;
+
 -- Tabla para contenidos
 create table verificacion_texto(
 	id int auto_increment primary key,
     titulo varchar(255),
     contenido text,
-    veredicto enum('Falso','Verdadero', 'Verificado Pero En Desarrollo', 'Contradictorio'),
+    veredicto enum('Falso','Verdadero', 'Engañoso', 'No determinado'),
     confianza float,
     fecha datetime default current_timestamp
 );
+
 -- Tabla para Links
 CREATE TABLE verificacion_link (
     id INT AUTO_INCREMENT PRIMARY KEY,

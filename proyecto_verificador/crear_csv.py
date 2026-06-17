@@ -1,15 +1,16 @@
 import pandas as pd
-import mysql.connector
-from mysql.connector import Error
+import pymysql
+from pymysql import Error
 import os
 
 def conectar_db():
     try:
-        conexion = mysql.connector.connect(
+        conexion = pymysql.connect(
             host='localhost',
             user='root',
             password='', # Tu contraseña de MariaDB
-            database='db_verifica_bolivia'
+            database='db_verifica_bolivia',
+            charset='utf8mb4'
         )
         return conexion
     except Error as e:

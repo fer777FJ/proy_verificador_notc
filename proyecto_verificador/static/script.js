@@ -2,9 +2,14 @@ let currentTab = 'texto';
 
 function switchTab(tab) {
     currentTab = tab;
+
+    // FIX #4: Clases correctas del dark mode para tabs inactivos
+    // Las clases anteriores (text-gray-500, hover:bg-gray-100) eran del tema claro
+    // y sobreescribían el diseño dark mode al cambiar de pestaña
     ['texto', 'link', 'imagen'].forEach(t => {
         document.getElementById(`sec-${t}`).classList.add('hidden');
-        document.getElementById(`tab-${t}`).className = "flex-1 py-2 px-4 rounded-md text-gray-500 hover:bg-gray-100 transition";
+        document.getElementById(`tab-${t}`).className =
+            "flex-1 py-3 px-4 rounded-lg transition-all duration-300 font-bold uppercase text-xs tracking-widest text-zinc-500 hover:text-orange-400";
     });
     
     document.getElementById(`sec-${tab}`).classList.remove('hidden');
@@ -55,14 +60,12 @@ function mostrarResultado(data) {
     const resAnalisis = document.getElementById('res-analisis');
     const fuentesDiv = document.getElementById('res-fuentes');
     const resConfianza = document.getElementById('res-confianza');
-    const confianza = (data.confianza !== undefined) ? data.confianza : "N/A";
 
     const veredicto = data.veredicto || data.veredicto_imagen || "Resultado";
     const analisis = data.analisis || data.analisis_visual || data.resumen_contenido;
     
-    resDiv.classList.remove('hidden', 'border-green-500', 'border-red-500', 'border-yellow-500');
+    resDiv.classList.remove('hidden', 'border-green-500', 'border-red-500', 'border-yellow-500', 'border-orange-600');
     
-    // Lógica de colores según el veredicto
     const vLower = veredicto.toLowerCase();
     if (vLower.includes("verdadero") || vLower.includes("real")) {
         resDiv.classList.add('border-green-500');
@@ -76,14 +79,12 @@ function mostrarResultado(data) {
     resAnalisis.innerText = analisis;
     resConfianza.innerText = "Confianza: " + (data.confianza !== undefined ? data.confianza : "N/A") + "%";
     
-    // Renderizar fuentes si existen
     const fuentes = data.fuentes_verificadas || [];
     fuentesDiv.innerHTML = fuentes.length > 0 
         ? "<strong>Fuentes encontradas:</strong><br>" + fuentes.map(f => `<a href="${f}" target="_blank" class="block underline truncate">${f}</a>`).join('')
         : "";
     
     resDiv.scrollIntoView({ behavior: 'smooth' });
-    
 }
 
 function verificarTexto() {
@@ -111,9 +112,8 @@ async function cargarHistorial() {
         const data = await response.json();
         const contenedor = document.getElementById('historial-lista');
         
-        contenedor.innerHTML = ''; // Limpiar loader
+        contenedor.innerHTML = '';
 
-        // Función auxiliar para determinar el color según el veredicto
         const getVeredictoColor = (veredicto) => {
             const colores = {
                 'Verdadero': 'border-green-500 text-green-400',
@@ -125,11 +125,14 @@ async function cargarHistorial() {
             return colores[veredicto] || 'border-zinc-700 text-zinc-400';
         };
 
-        // Combinar todos los resultados en un solo array para mostrar lo más reciente globalmente
-        // O podrías iterar sobre cada uno (data.texto, data.links, data.imagenes)
         const totalNoticias = [...data.texto, ...data.links, ...data.imagenes]
             .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-            .slice(0, 15); // Mostramos las 15 más recientes en total
+            .slice(0, 15);
+
+        if (totalNoticias.length === 0) {
+            contenedor.innerHTML = '<div class="text-zinc-500 text-sm text-center py-6">No hay verificaciones registradas aún.</div>';
+            return;
+        }
 
         totalNoticias.forEach(item => {
             const colorClase = getVeredictoColor(item.veredicto);
@@ -152,7 +155,7 @@ async function cargarHistorial() {
                             ${item.veredicto}
                         </span>
                         <div class="text-[10px] text-zinc-500 bg-zinc-950 px-2 py-1 rounded-md border border-zinc-800">
-                            Confianza IA: <span class="text-orange-400">${(item.confianza * 100).toFixed(0)}%</span>
+                            Confianza IA: <span class="text-orange-400">${item.confianza ? (item.confianza * 100).toFixed(0) : "N/A"}%</span>
                         </div>
                     </div>
                 </div>
@@ -163,5 +166,4 @@ async function cargarHistorial() {
     }
 }
 
-// Llamar a la función cuando cargue la página
 document.addEventListener('DOMContentLoaded', cargarHistorial);

@@ -1,5 +1,29 @@
+# Variables de entorno (¡NUNCA subir a Git!)
 .env
+proyecto_verificador/.env
+
+# Entornos virtuales de Python
 venv/
+env_verificador/
+env/
+.venv/
+
+# Caché de Python
 __pycache__/
+*.py[cod]
+*.pyo
+
+# Logs
 *.log
+
+# Archivos de sistema
 node_modules/
+.vs/
+*.DS_Store
+
+# Imágenes subidas por usuarios (generadas en runtime)
+proyecto_verificador/static/img/*
+!proyecto_verificador/static/img/.gitkeep
+
+# Datasets generados
+proyecto_verificador/datasets/

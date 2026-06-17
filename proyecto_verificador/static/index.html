@@ -55,10 +55,11 @@
                 </button>
             </div>
 
+            <!-- FIX #6: Ícono fa-鋪 (carácter chino inválido) reemplazado por fa-cloud-upload-alt -->
             <div id="sec-imagen" class="hidden space-y-6 text-center relative z-10">
                 <div class="border-2 border-dashed border-zinc-700 p-12 rounded-2xl cursor-pointer hover:border-orange-500/50 bg-black/50 transition-all group"
                     onclick="document.getElementById('file-input').click()">
-                    <i class="fas fa-鋪 text-4xl text-zinc-600 group-hover:text-orange-500 mb-4 transition-colors"></i>
+                    <i class="fas fa-cloud-upload-alt text-4xl text-zinc-600 group-hover:text-orange-500 mb-4 transition-colors"></i>
                     <p id="file-label" class="text-zinc-500 font-medium">ARRASTRA O SUBE EVIDENCIA VISUAL</p>
                     <input id="file-input" type="file" class="hidden" onchange="updateFileName()">
                 </div>
@@ -75,8 +76,7 @@
                 <div class="w-2 h-2 bg-orange-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                 <div class="w-2 h-2 bg-orange-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
             </div>
-            <p class="text-orange-500 font-mono text-xs tracking-tighter uppercase">Conectando con Redes Neuronales...
-            </p>
+            <p class="text-orange-500 font-mono text-xs tracking-tighter uppercase">Conectando con Redes Neuronales...</p>
         </div>
 
         <div id="resultado"
@@ -88,7 +88,16 @@
             <div id="res-fuentes"
                 class="mt-6 pt-4 border-t border-zinc-800 text-[10px] font-mono text-orange-400/80 uppercase"></div>
         </div>
-        <div class="flex items-center space-x-3 mb-6">
+
+        <div id="resultado"
+            class="hidden">
+            <h2 id="res-veredicto"></h2>
+            <p id="res-analisis"></p>
+            <div id="res-fuentes"></div>
+            <p id="res-confianza"></p>
+        </div>
+
+        <div class="flex items-center space-x-3 mt-10 mb-6">
             <div class="h-8 w-1 bg-orange-500 rounded-full"></div>
             <h2 class="text-xl font-bold text-white tracking-tight uppercase">Historial de Verificaciones</h2>
         </div>
@@ -97,6 +106,7 @@
             <div class="text-zinc-500 text-sm animate-pulse">Consultando base de datos de VerificaBolivia...</div>
         </div>
     </main>
+
     <script src="/static/script.js"></script>
 </body>
 

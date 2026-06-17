@@ -20,11 +20,17 @@ def verificar_noticia_texto(titular, contenido):
         # 1. Búsqueda limitada para ahorrar tokens (Rate Limit Groq)
         consulta_busqueda = f"veracidad de: {titular}"
         busqueda = tavily_client.search(query=consulta_busqueda, search_depth="basic", max_results=2)
-        
+
+        if not busqueda or 'results' not in busqueda or not busqueda['results']:
+            raise ValueError("No se encontraron resultados en la búsqueda de Tavily")
+
         # Extraemos y recortamos contextos
-        contextos = [resultado['content'][:800] for resultado in busqueda['results']]
-        fuentes = [resultado['url'] for resultado in busqueda['results']]
-        
+        contextos = [resultado['content'][:800] for resultado in busqueda['results'] if 'content' in resultado]
+        fuentes = [resultado['url'] for resultado in busqueda['results'] if 'url' in resultado]
+
+        if not contextos:
+            raise ValueError("No se encontraron contextos válidos para la noticia")
+
         # 2. Prompt sincronizado con la tabla 'verificacion_texto'
         prompt = f"""
         Eres un experto en fact-checking en Bolivia. 
@@ -39,10 +45,10 @@ def verificar_noticia_texto(titular, contenido):
         
         Responde estrictamente en JSON con esta estructura:
         {{
-            "veredicto": "Falso", "Verdadero", "Verificado Pero En Desarrollo", "Contradictorio",
+            "veredicto": "Falso" o "Verdadero" o "Verificado Pero En Desarrollo" o "Contradictorio",
             "confianza": (número del 1 al 100),
             "analisis": "Explicación breve",
-            "fuentes_verificadas": {fuentes}
+            "fuentes_verificadas": {json.dumps(fuentes)}
         }}
         """
 
@@ -51,15 +57,18 @@ def verificar_noticia_texto(titular, contenido):
             model="llama-3.1-8b-instant",
             response_format={"type": "json_object"}
         )
-        
+
+        if not chat_completion or not chat_completion.choices:
+            raise ValueError("La IA no devolvió una respuesta válida")
+
         return chat_completion.choices[0].message.content
     except Exception as e:
         print(f"Error en services texto: {e}")
-        return json.dumps({"veredicto": "Contradictorio", "confianza": 0, "analisis": "Error de conexión"})
+        return json.dumps({"veredicto": "Contradictorio", "confianza": 0, "analisis": str(e)})
 
 def analizar_imagen_falsa(imagen_bytes):
-    # Usamos gemini-1.5-flash por estabilidad y compatibilidad
-    model = genai.GenerativeModel('gemini-1.5-flash') 
+    # FIX #2: Usar gemini-2.0-flash que es más estable y tiene mejor soporte
+    model = genai.GenerativeModel('gemini-2.5-flash')
     
     img = Image.open(io.BytesIO(imagen_bytes))
     
@@ -70,7 +79,7 @@ def analizar_imagen_falsa(imagen_bytes):
     {
         "analisis_visual": "Descripción breve",
         "probabilidad_ia": "Alta/Media/Baja",
-        "veredicto": "Falso", "Verdadero", "Engañoso", "No determinado"
+        "veredicto_imagen": "Falso" o "Verdadero" o "Engañoso" o "No determinado"
     }
     """
     
@@ -90,10 +99,10 @@ def verificar_link(url):
         
         Estructura JSON:
         {{
-            "veredicto": "Falso", "Verdadero", "Engañoso", "No determinado",
+            "veredicto": "Falso" o "Verdadero" o "Engañoso" o "No determinado",
             "resumen_contenido": "Breve descripción",
             "confiabilidad_sitio": "Alta/Media/Baja",
-            "confianza": 70
+            "confianza": (número del 1 al 100)
         }}
         """
         
